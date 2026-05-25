@@ -33,6 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# scratch / local dev scripts (may contain secrets)
+/scratch
+
 # vercel
 .vercel
 
