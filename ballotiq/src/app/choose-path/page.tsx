@@ -54,39 +54,45 @@ export default function ChoosePathPage() {
   if (!selectedCountry) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-blue-950 to-gray-950 text-gray-200 selection:bg-blue-500/30 flex flex-col items-center justify-center p-6 relative">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-gradient-to-br from-gray-950 via-blue-950 to-gray-950 text-gray-200 selection:bg-blue-500/30 flex flex-col relative">
       {/* Navigation */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 py-6 max-w-7xl mx-auto w-full">
+      <div className="w-full max-w-7xl mx-auto px-6 py-4 flex flex-row items-center justify-between gap-4 z-20">
         <button 
           onClick={() => router.push('/#country-selection')}
-          className="p-3 rounded-2xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all group"
+          className="p-3 rounded-2xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all group shrink-0"
           aria-label="Back to home"
         >
           <ArrowLeft className="w-6 h-6 group-hover:-translate-x-1 transition-transform" />
         </button>
-        <LanguageSelector />
+
+        {/* Country Selector/Display aligned in center header */}
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold shrink-0">
+          <Image 
+            src={`https://flagcdn.com/w80/${selectedCountry.code.toLowerCase()}.png`} 
+            alt={`Flag of ${selectedCountry.name}`}
+            width={16}
+            height={12}
+            unoptimized
+            className="w-4 h-3 object-cover rounded-sm"
+          />
+          <span>{selectedCountry.name}</span>
+        </div>
+
+        <div className="shrink-0">
+          <LanguageSelector />
+        </div>
       </div>
 
-      <div className="max-w-4xl w-full text-center space-y-12 animate-in slide-in-from-bottom-8 duration-700">
-        <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium mb-4">
-            <Image 
-              src={`https://flagcdn.com/w80/${selectedCountry.code.toLowerCase()}.png`} 
-              alt={`Flag of ${selectedCountry.name}`}
-              width={16}
-              height={12}
-              unoptimized
-              className="w-4 h-3 object-cover rounded-sm"
-            />
-            <span>{selectedCountry.name}</span>
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-4 w-full max-w-4xl mx-auto">
+        <div className="w-full text-center space-y-6 animate-in slide-in-from-bottom-8 duration-700">
+          <div className="space-y-4">
+            <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight leading-tight">
+              <TranslatedText text="How do you want to learn?" />
+            </h1>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed">
+              <TranslatedText text="Choose the experience that fits your pace. Deep dive with a structured path or just talk with our AI assistant." />
+            </p>
           </div>
-          <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight leading-tight">
-            <TranslatedText text="How do you want to learn?" />
-          </h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed">
-            <TranslatedText text="Choose the experience that fits your pace. Deep dive with a structured path or just talk with our AI assistant." />
-          </p>
-        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Talk with AI - PRIMARY */}
@@ -147,10 +153,12 @@ export default function ChoosePathPage() {
 
         <button 
           onClick={() => router.push('/#country-selection')}
-          className="text-sm text-gray-500 hover:text-white transition-colors underline underline-offset-4"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 text-sm text-gray-400 font-medium hover:text-white hover:bg-white/10 hover:border-white/20 transition-all"
         >
+          <ArrowLeft className="w-4 h-4" />
           <TranslatedText text="Change Country" />
         </button>
+        </div>
       </div>
     </div>
   );
