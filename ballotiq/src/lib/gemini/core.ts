@@ -154,6 +154,7 @@ export async function callGemini(
 export async function callGeminiQuiz(
   prompt: string,
   sessionId: string,
+  systemInstruction?: string,
 ): Promise<string | null> {
   if (!isGeminiEnabled) return null;
   const models = ["gemini-2.0-flash-lite", "gemini-2.0-flash"];
@@ -170,6 +171,7 @@ export async function callGeminiQuiz(
             temperature: 0.3,
             maxOutputTokens: 800,
           },
+          systemInstruction,
         });
         const result = await model.generateContent(prompt);
         const text = result.response.text();
