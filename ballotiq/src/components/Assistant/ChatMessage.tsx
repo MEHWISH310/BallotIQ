@@ -1,6 +1,7 @@
 'use client';
 
-import { Bot, User, ExternalLink } from 'lucide-react';
+import { useState } from 'react';
+import { Bot, User, ExternalLink, Copy, Check } from 'lucide-react';
 import type { ChatMessage as ChatMessageType, UserContext } from '@/types';
 import TTSButton from '@/components/ui/TTSButton';
 import TranslatedText from '@/components/ui/TranslatedText';
@@ -24,6 +25,17 @@ export default function ChatMessage({
   onSpeak,
 }: ChatMessageProps) {
   const isAssistant = message.role === 'assistant';
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(message.content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy message:', error);
+    }
+  };
 
   return (
     <div className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2`}>
@@ -38,21 +50,34 @@ export default function ChatMessage({
           : 'bg-white/[0.03] border border-white/10 text-gray-100 rounded-tl-md'
       }`}>
         <p className="whitespace-pre-wrap"><TranslatedText text={message.content} /></p>
+
         {isAssistant && (
           <div className="mt-3 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="inline-flex items-center gap-1.5 text-[10px] text-blue-300 hover:text-blue-200 transition-colors bg-blue-400/10 px-2 py-1 rounded-md border border-blue-400/20"
+              aria-label="Copy assistant response"
+            >
+              {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+              {copied ? 'Copied!' : 'Copy'}
+            </button>
+
             <TTSButton text={message.content} isSpeaking={isSpeaking} currentText={currentSpokenText} onToggle={onSpeak} />
-            <a 
+
+            <a
               href={message.officialSource?.url || userContext.electionBodyUrl || `https://www.google.com/search?q=${encodeURIComponent(userContext.countryName + ' official election website')}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-[10px] text-blue-300 hover:text-blue-200 transition-colors bg-blue-400/10 px-2 py-1 rounded-md border border-blue-400/20"
             >
               <ExternalLink className="w-3 h-3" />
-              <TranslatedText text={message.officialSource?.name || userContext.electionBody || "Official Source"} />
+              <TranslatedText text={message.officialSource?.name || userContext.electionBody || 'Official Source'} />
             </a>
           </div>
         )}
       </div>
+
       {message.role === 'user' && (
         <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
           <User className="w-4.5 h-4.5 text-indigo-300" />
