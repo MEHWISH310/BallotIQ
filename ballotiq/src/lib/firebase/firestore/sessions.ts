@@ -10,6 +10,7 @@ export async function saveUserContext(context: UserContext): Promise<void> {
   try {
     await authReady;
     const db = getFirestoreDB();
+    if (!db) return;
     const ref = doc(db, 'sessions', context.sessionId, 'context', 'current');
     await setDoc(ref, context, { merge: true });
   } catch (error) {
@@ -24,6 +25,7 @@ export async function getUserContext(sessionId: string): Promise<UserContext | n
   try {
     await authReady;
     const db = getFirestoreDB();
+    if (!db) return null;
     const ref = doc(db, 'sessions', sessionId, 'context', 'current');
     const snap = await getDoc(ref);
     return snap.exists() ? (snap.data() as UserContext) : null;
@@ -40,6 +42,7 @@ export async function saveProgress(progress: UserProgress): Promise<void> {
   try {
     await authReady;
     const db = getFirestoreDB();
+    if (!db) return;
     const ref = doc(db, 'sessions', progress.sessionId, 'progress', 'current');
     await setDoc(ref, { ...progress, lastUpdated: new Date().toISOString() }, { merge: true });
   } catch (error) {
@@ -54,6 +57,7 @@ export async function getProgress(sessionId: string): Promise<UserProgress | nul
   try {
     await authReady;
     const db = getFirestoreDB();
+    if (!db) return null;
     const ref = doc(db, 'sessions', sessionId, 'progress', 'current');
     const snap = await getDoc(ref);
     return snap.exists() ? (snap.data() as UserProgress) : null;
@@ -73,6 +77,7 @@ export async function saveChatMessage(
   try {
     await authReady;
     const db = getFirestoreDB();
+    if (!db) return;
     const ref = doc(db, 'sessions', sessionId, 'messages', message.id);
     await setDoc(ref, message);
   } catch (error) {
@@ -87,6 +92,7 @@ export async function getChatHistory(sessionId: string): Promise<ChatMessage[]> 
   try {
     await authReady;
     const db = getFirestoreDB();
+    if (!db) return [];
     const messagesRef = collection(db, 'sessions', sessionId, 'messages');
     const q = query(messagesRef, orderBy('timestamp', 'asc'), limit(20));
     const snap = await getDocs(q);
@@ -104,10 +110,27 @@ export async function saveConversationMetadata(metadata: ConversationMetadata): 
   try {
     await authReady;
     const db = getFirestoreDB();
+    if (!db) return;
     const ref = doc(db, 'sessions', metadata.id);
     await setDoc(ref, metadata, { merge: true });
   } catch (error) {
     logger.error('[Firestore] Failed to save conversation metadata:', error, { component: 'Firestore' });
+  }
+}
+
+/**
+ * Retrieves conversation metadata for a specific session.
+ */
+export async function getConversationMetadata(sessionId: string): Promise<ConversationMetadata | null> {
+  try {
+    await authReady;
+    const db = getFirestoreDB();
+    const ref = doc(db, 'sessions', sessionId);
+    const snap = await getDoc(ref);
+    return snap.exists() ? (snap.data() as ConversationMetadata) : null;
+  } catch (error) {
+    logger.error('[Firestore] Failed to get conversation metadata:', error, { component: 'Firestore', sessionId });
+    return null;
   }
 }
 
@@ -118,6 +141,7 @@ export async function getUserConversations(userId: string): Promise<Conversation
   try {
     await authReady;
     const db = getFirestoreDB();
+    if (!db) return [];
     const sessionsRef = collection(db, 'sessions');
     const q = query(sessionsRef, where('userId', '==', userId));
     const snap = await getDocs(q);
@@ -140,6 +164,7 @@ export async function deleteConversation(sessionId: string): Promise<void> {
   try {
     await authReady;
     const db = getFirestoreDB();
+    if (!db) return;
     // Delete the root session document
     const ref = doc(db, 'sessions', sessionId);
     await deleteDoc(ref);
@@ -155,6 +180,7 @@ export async function renameConversation(sessionId: string, newTitle: string): P
   try {
     await authReady;
     const db = getFirestoreDB();
+    if (!db) return;
     const ref = doc(db, 'sessions', sessionId);
     await updateDoc(ref, { 
       title: newTitle, 

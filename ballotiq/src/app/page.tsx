@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { ArrowRight, MapPin, Menu, X } from 'lucide-react';
 import TranslatedText from '@/components/ui/TranslatedText';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { Country } from '@/types';
 import Image from 'next/image';
 const PollingStationFinder = dynamic(
@@ -27,6 +28,7 @@ import TestimonialCarousel from '@/components/Home/TestimonialCarousel';
 /** BallotIQ landing page with hero, features, and quick start */
 export default function HomePage() {
   const router = useRouter();
+  const { language } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const previewCountry = getCountryByCode('IN');
 
@@ -42,14 +44,14 @@ export default function HomePage() {
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-lg">Skip to main content</a>
       <div className="min-h-screen flex flex-col relative">
         {/* Navigation */}
-        <nav className="relative z-20 flex-shrink-0 flex items-center justify-between px-6 py-4 sm:py-6 max-w-7xl mx-auto w-full">
+        <nav className="relative z-20 flex-shrink-0 flex items-center justify-between px-6 py-3 sm:py-4 max-w-7xl mx-auto w-full">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-gray-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
               <span className="text-xl">🗳️</span>
             </div>
             <span className="text-2xl font-bold tracking-tight text-white">BallotIQ</span>
           </div>
-          
+
           {/* Desktop right-aligned navbar with rounded corners */}
           <div className="hidden sm:flex items-center gap-2 sm:gap-3 p-1.5 bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-full shadow-lg shadow-black/20 pl-4 pr-4 sm:pl-5 sm:pr-5">
             <a 
@@ -106,10 +108,10 @@ export default function HomePage() {
         )}
 
         {/* Hero Section */}
-        <section id="main-content" tabIndex={-1} className="relative z-10 max-w-7xl mx-auto px-6 w-full flex-1 flex items-center justify-center py-8 sm:py-10 md:py-8 lg:py-6 outline-none">
+        <section id="main-content" tabIndex={-1} className="relative z-10 max-w-7xl mx-auto px-6 w-full flex-1 flex items-center justify-center py-6 sm:py-8 md:py-6 lg:py-4 outline-none">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start md:items-center w-full">
             {/* Left Content */}
-            <div className="space-y-6 sm:space-y-8 animate-in slide-in-from-left-8 duration-1000 max-w-xl lg:max-w-[480px] xl:max-w-none">
+            <div className="space-y-5 sm:space-y-6 animate-in slide-in-from-left-8 duration-1000 max-w-xl lg:max-w-[480px] xl:max-w-none">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
@@ -118,22 +120,25 @@ export default function HomePage() {
                 <TranslatedText text="Next-Gen Election Education" />
               </div>
 
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-black text-white tracking-tighter leading-[1.02]">
-                <TranslatedText text="Understand" /><br />
-                <TranslatedText text="your vote." /><br />
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-400 to-blue-400">
-                  <TranslatedText text="Shape your future." />
-                </span>
+              <h1 className={`font-black text-white tracking-tighter font-heading ${
+                language === 'ta' || language === 'te'
+                  ? 'text-3xl sm:text-4xl lg:text-[3.25rem] leading-[1.25]'
+                  : language === 'hi'
+                    ? 'text-3xl sm:text-4xl lg:text-[3.75rem] leading-[1.25]'
+                    : 'text-[2.75rem] sm:text-5xl lg:text-[4.5rem] leading-[0.95]'
+              }`}>
+                <TranslatedText text="Understand your vote." /><br />
+                <span className="text-primary-gradient"><TranslatedText text="Shape your future." /></span>
               </h1>
 
-              <p className="text-base sm:text-lg md:text-xl text-gray-400 max-w-xl leading-normal">
+              <p className="text-base sm:text-lg text-gray-400 max-w-xl leading-normal">
                 <TranslatedText text="Personalized AI election education that adapts to your knowledge level, covers your country's specific process, and speaks your language." />
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={() => document.getElementById('country-selection')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="group relative px-8 py-4 bg-white text-black text-lg font-bold rounded-2xl hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.1)] active:scale-95"
+                  className="group relative px-7 py-3.5 bg-white text-black text-base font-bold rounded-2xl hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.1)] active:scale-95"
                 >
                   <div className="flex items-center gap-3">
                     <TranslatedText text="Start Learning" />
