@@ -44,7 +44,7 @@ export default function ChatInput({
             aria-label="Type your question"
             disabled={isLoading}
           />
-          <span className="absolute right-3 bottom-1.5 text-[9px] sm:text-[10px] font-medium tracking-tighter text-gray-500">{input.length}/{MAX_CHAT_INPUT_LENGTH}</span>
+          <span className={`absolute right-3 bottom-1.5 text-[9px] sm:text-[10px] font-medium tracking-tighter ${input.length >= MAX_CHAT_INPUT_LENGTH ? 'text-red-400' : input.length >= 240 ? 'text-amber-400' : 'text-gray-500'}`}>{input.length}/{MAX_CHAT_INPUT_LENGTH}</span>
         </div>
         
         <button
