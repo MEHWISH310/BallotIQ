@@ -64,6 +64,7 @@ export interface ElectionStep {
   description: string;
   detailedExplanation: string;
   simpleExplanation: string;
+  fallbackExplanations?: string[];
   timeline: string;
   requirements: string[];
   tips: string[];
@@ -144,7 +145,7 @@ export interface RateLimitState {
   geminiCallsToday: number;
   translateCallsToday: number;
   ttsCallsToday: number;
-  lastResetAt: any;
+  lastResetAt: string;
 }
 
 /** Generic cache entry with TTL */
