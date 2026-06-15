@@ -74,7 +74,7 @@ export default function ChatInput({
             onSendMessage(input);
           }}
           disabled={!input.trim() || isLoading || isOffline}
-          className="group px-4 sm:px-6 bg-gray-900 text-white dark:bg-white dark:text-black rounded-xl sm:rounded-2xl hover:scale-[1.03] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-black/5 dark:shadow-white/10 flex-shrink-0 flex items-center justify-center"
+          className="group px-4 sm:px-6 bg-gray-200 text-blue-400 dark:bg-white dark:text-black rounded-xl sm:rounded-2xl hover:scale-[1.03] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-black/5 dark:shadow-white/10 flex-shrink-0 flex items-center justify-center"
           aria-label="Send message"
         >
           <Send className="w-4 h-4 sm:w-5 sm:h-5" />
