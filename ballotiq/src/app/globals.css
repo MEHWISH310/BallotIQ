@@ -243,7 +243,7 @@ html.light body {
 /* Page wrapper backgrounds */
 html[data-theme="light"] .bg-gradient-to-br.from-gray-950.via-blue-950.to-gray-950,
 html.light .bg-gradient-to-br.from-gray-950.via-blue-950.to-gray-950 {
-  background-image: linear-gradient(135deg, #eef3f8 0%, #dbe5f0 50%, #c9d7e7 100%);
+  background-image: linear-gradient(to right, #a0c4ff 0%, #ffffff 50%, #a0c4ff 100%);
   color: #0f1e36;
 }
 
