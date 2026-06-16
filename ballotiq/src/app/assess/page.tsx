@@ -62,7 +62,7 @@ function AssessmentFlow({ country, sessionId }: { country: Country; sessionId: s
       sessionStorage.setItem('ballotiq_context', JSON.stringify(userContext));
       resetProgress(); // CLEAR OLD DATA
       const timer = setTimeout(() => {
-        router.push(`/learn/${country.code.toLowerCase()}`);
+        router.push(`/learn/${country.code.toLowerCase()}/`);
       }, 1500);
       return () => clearTimeout(timer);
     }
