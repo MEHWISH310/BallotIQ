@@ -19,7 +19,7 @@ export default function BottomNav({ activeTab, countryCode }: BottomNavProps) {
       aria-label="Bottom navigation"
     >
       <button
-        onClick={() => router.push(`/learn/${countryCode}`)}
+        onClick={() => router.push(`/learn/${countryCode.toLowerCase()}/`)}
         className={`flex-1 flex flex-col items-center justify-center py-3 text-[10px] font-bold gap-1 transition-colors ${
           activeTab === 'learn' ? 'text-blue-400' : 'text-slate-600 hover:text-slate-400'
         }`}
