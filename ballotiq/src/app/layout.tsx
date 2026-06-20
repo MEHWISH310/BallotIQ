@@ -9,6 +9,7 @@ import OfflineBanner from '@/components/ui/OfflineBanner';
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration';
 import './globals.css';
 import BackToTop from '@/components/BackToTop';
+import KeyboardShortcutsContainer from '@/components/ui/KeyboardShortcutsContainer';
 
 const sora = Sora({
   subsets: ['latin'],
@@ -105,6 +106,7 @@ export default function RootLayout({
               className="sr-only"
             />
             <BackToTop />
+            <KeyboardShortcutsContainer />
           </TranslationProvider>
         </ThemeProvider>
       </body>
