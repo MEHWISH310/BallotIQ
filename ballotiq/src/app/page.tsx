@@ -43,7 +43,7 @@ export default function HomePage() {
   const { language } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const previewCountry = getCountryByCode("IN");
   useEffect(() => {
     const unsubscribe = onAuthChange((firebaseUser) => {
