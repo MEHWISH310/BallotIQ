@@ -5,7 +5,7 @@
  * Provides immediate reinforcement and triggers adaptive logic if needed.
  */
 
-import { ArrowRight, Lightbulb, Loader2, Sparkles, Brain } from 'lucide-react';
+import { ArrowRight, Lightbulb, Loader2, RefreshCw, Sparkles, Brain } from 'lucide-react';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import type { MicroQuizQuestion } from '@/types';
 import TTSButton from '@/components/ui/TTSButton';
@@ -24,6 +24,7 @@ interface MicroQuizProps {
   isReExplaining: boolean;
   onSubmit: (index: number) => void;
   onContinue: () => void;
+  onRetry?: () => void;
   onSpeak?: (text: string) => void;
   isSpeaking?: boolean;
   currentText?: string | null;
@@ -43,6 +44,7 @@ export default function MicroQuiz({
   isReExplaining,
   onSubmit,
   onContinue,
+  onRetry,
   onSpeak,
   isSpeaking = false,
   currentText = null,
@@ -175,17 +177,44 @@ export default function MicroQuiz({
               </div>
             )}
 
-            <button
-              onClick={() => {
-                onContinue();
-                onInteraction?.();
-              }}
-              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-500 transition-all shadow-lg shadow-blue-500/20"
-              aria-label="Continue to next step"
-            >
-              <TranslatedText text="Continue Learning" />
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            {showResult && !isCorrect ? (
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    onRetry?.();
+                    onInteraction?.();
+                  }}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl font-bold hover:bg-white/10 transition-all"
+                  aria-label="Try the quiz again"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  <TranslatedText text="Try Again" />
+                </button>
+                <button
+                  onClick={() => {
+                    onContinue();
+                    onInteraction?.();
+                  }}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-500 transition-all shadow-lg shadow-blue-500/20"
+                  aria-label="Continue to next step anyway"
+                >
+                  <TranslatedText text="Continue Anyway" />
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  onContinue();
+                  onInteraction?.();
+                }}
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-500 transition-all shadow-lg shadow-blue-500/20"
+                aria-label="Continue to next step"
+              >
+                <TranslatedText text="Continue Learning" />
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            )}
           </div>
         )}
       </div>
