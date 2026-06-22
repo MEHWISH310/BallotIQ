@@ -415,4 +415,106 @@ describe('MicroQuiz', () => {
     fireEvent.click(screen.getByLabelText(/Continue to next step/i));
     expect(onInteraction).toHaveBeenCalled();
   });
+
+  // ── Retry feature tests ────────────────────────────────────────────────────
+
+  it('"Try Again" button is visible when isCorrect is false and showResult is true', () => {
+    render(
+      <MicroQuiz
+        question={mockQuestion}
+        loading={false}
+        selectedAnswer={0}
+        isCorrect={false}
+        showResult={true}
+        explanation="Wrong!"
+        reExplanation={null}
+        isReExplaining={false}
+        onSubmit={onSubmit}
+        onContinue={onContinue}
+      />
+    );
+    expect(screen.getByLabelText(/Try the quiz again/i)).toBeInTheDocument();
+  });
+
+  it('Clicking "Try Again" calls onRetry callback', () => {
+    const onRetry = jest.fn<void, []>();
+    render(
+      <MicroQuiz
+        question={mockQuestion}
+        loading={false}
+        selectedAnswer={0}
+        isCorrect={false}
+        showResult={true}
+        explanation="Wrong!"
+        reExplanation={null}
+        isReExplaining={false}
+        onSubmit={onSubmit}
+        onContinue={onContinue}
+        onRetry={onRetry}
+      />
+    );
+    fireEvent.click(screen.getByLabelText(/Try the quiz again/i));
+    expect(onRetry).toHaveBeenCalledTimes(1);
+  });
+
+  it('"Try Again" button is NOT present when isCorrect is true', () => {
+    render(
+      <MicroQuiz
+        question={mockQuestion}
+        loading={false}
+        selectedAnswer={1}
+        isCorrect={true}
+        showResult={true}
+        explanation={null}
+        reExplanation={null}
+        isReExplaining={false}
+        onSubmit={onSubmit}
+        onContinue={onContinue}
+      />
+    );
+    expect(screen.queryByLabelText(/Try the quiz again/i)).not.toBeInTheDocument();
+  });
+
+  it('When isCorrect is false and showResult is true, "Continue Anyway" appears instead of "Continue Learning"', () => {
+    render(
+      <MicroQuiz
+        question={mockQuestion}
+        loading={false}
+        selectedAnswer={0}
+        isCorrect={false}
+        showResult={true}
+        explanation="Wrong!"
+        reExplanation={null}
+        isReExplaining={false}
+        onSubmit={onSubmit}
+        onContinue={onContinue}
+      />
+    );
+    expect(screen.getByLabelText(/Continue to next step anyway/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Continue Learning/i)).not.toBeInTheDocument();
+  });
+
+  it('When onInteraction is provided, clicking "Try Again" also calls onInteraction', () => {
+    const onRetry = jest.fn<void, []>();
+    const onInteraction = jest.fn<void, []>();
+    render(
+      <MicroQuiz
+        question={mockQuestion}
+        loading={false}
+        selectedAnswer={0}
+        isCorrect={false}
+        showResult={true}
+        explanation="Wrong!"
+        reExplanation={null}
+        isReExplaining={false}
+        onSubmit={onSubmit}
+        onContinue={onContinue}
+        onRetry={onRetry}
+        onInteraction={onInteraction}
+      />
+    );
+    fireEvent.click(screen.getByLabelText(/Try the quiz again/i));
+    expect(onRetry).toHaveBeenCalled();
+    expect(onInteraction).toHaveBeenCalled();
+  });
 });

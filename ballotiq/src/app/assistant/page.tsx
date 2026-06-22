@@ -11,6 +11,7 @@ import { ArrowLeft, Menu } from 'lucide-react';
 import Image from 'next/image';
 import type { UserContext, ElectionStep, ConversationMetadata } from '@/types';
 import { useTTS } from '@/hooks/useTTS';
+import { useProgress } from '@/hooks/useProgress';
 import { getFallbackGuide } from '@/lib/gemini/fallback';
 import ChatWindow from '@/components/Assistant/ChatWindow';
 import KnowledgeMeter from '@/components/Assessment/KnowledgeMeter';
@@ -30,6 +31,7 @@ import {
   saveConversationMetadata
 } from '@/lib/firebase/firestore';
 import { generateUUID } from '@/lib/utils';
+import { authReady, getFirebaseAuth } from '@/lib/firebase/client';
 
 /** Full-page AI assistant with context-aware responses */
 export default function AssistantPage() {
@@ -41,10 +43,21 @@ export default function AssistantPage() {
   const [userId, setUserId] = useState<string>('');
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedUserId = localStorage.getItem('ballotiq_session_id') || '';
-      setUserId(storedUserId);
+    async function initUser() {
+      if (typeof window === 'undefined') return;
+      
+      await authReady;
+      const auth = getFirebaseAuth();
+      const uid = auth?.currentUser?.uid;
+      
+      if (uid) {
+        setUserId(uid);
+      } else {
+        const storedUserId = localStorage.getItem('ballotiq_session_id') || '';
+        setUserId(storedUserId);
+      }
     }
+    initUser();
   }, []);
 
   const loadConversations = useCallback(async () => {
@@ -81,6 +94,13 @@ export default function AssistantPage() {
     if (!userContext) return [];
     return getFallbackGuide(userContext.countryCode, userContext.knowledgeLevel) ?? [];
   }, [userContext]);
+
+  // Persist language preference to Firestore when user changes it on this page.
+  // useProgress is safe to call unconditionally; it no-ops until userContext is loaded.
+  const { updateLanguage } = useProgress(
+    userContext?.countryCode ?? '',
+    userContext?.knowledgeLevel ?? 'beginner'
+  );
 
   const isOpenChat = userContext?.mainConfusion === 'Direct query';
 
@@ -206,7 +226,7 @@ export default function AssistantPage() {
               <TranslatedText text="BallotIQ AI Active" />
             </div>
             <ThemeToggle />
-            <LanguageSelector />
+            <LanguageSelector onLanguageChange={updateLanguage} />
           </div>
         </div>
       </header>

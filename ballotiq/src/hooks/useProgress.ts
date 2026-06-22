@@ -8,7 +8,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { KnowledgeLevel, SupportedLanguage, UserProgress } from '@/types';
 import { saveProgress, getProgress } from '@/lib/firebase/firestore';
-import { authReady } from '@/lib/firebase/client';
+import { authReady, getFirebaseAuth } from '@/lib/firebase/client';
 import { offlineDB, STORES } from '@/lib/offline/db';
 
 /** localStorage key for session ID */
@@ -48,24 +48,67 @@ export function useProgress(
   countryCode: string,
   knowledgeLevel: KnowledgeLevel
 ): UseProgressReturn {
-  const [sessionId] = useState(() => {
-    if (typeof window === 'undefined') return '';
-    const stored = localStorage.getItem(SESSION_KEY);
-    if (stored) return stored;
-    const newId = generateSessionId();
-    localStorage.setItem(SESSION_KEY, newId);
-    return newId;
-  });
+  const [sessionId, setSessionId] = useState<string>('');
+
+  useEffect(() => {
+    async function initSession() {
+      if (typeof window === 'undefined') return;
+
+      // Wait for Firebase Auth to be ready
+      await authReady;
+      const auth = getFirebaseAuth();
+      const uid = auth?.currentUser?.uid;
+
+      if (uid) {
+        setSessionId(uid);
+        // Sync the old session ID to the new UID if needed? 
+        // For now, let's just use UID as it's the most stable.
+        localStorage.setItem(SESSION_KEY, uid);
+      } else {
+        const stored = localStorage.getItem(SESSION_KEY);
+        if (stored) {
+          setSessionId(stored);
+        } else {
+          const newId = generateSessionId();
+          localStorage.setItem(SESSION_KEY, newId);
+          setSessionId(newId);
+        }
+      }
+    }
+    initSession();
+  }, []);
+
   const [progress, setProgress] = useState<UserProgress | null>(null);
 
   // Restore progress on mount
   useEffect(() => {
     async function restore() {
+      if (!sessionId) return;
+
+      /**
+       * Applies saved progress, performing a soft knowledgeLevel migration if needed.
+       * The knowledgeLevel check is intentionally NOT a hard gate — discarding saved
+       * progress on a level mismatch would cause silent data loss (see issue #87).
+       * Instead we restore completedSteps and all other fields, then update the level
+       * to the current session value so future saves reflect the correct level.
+       */
+      function applyRestored(saved: UserProgress): UserProgress {
+        if (saved.knowledgeLevel !== knowledgeLevel) {
+          console.warn(
+            `[useProgress] knowledgeLevel mismatch: stored="${saved.knowledgeLevel}" current="${knowledgeLevel}". ` +
+            'Restoring progress and migrating to current level.'
+          );
+          return { ...saved, knowledgeLevel };
+        }
+        return saved;
+      }
+
       // 1. Try Offline DB first for immediate response
       try {
         const localSaved = await offlineDB.get<UserProgress>(STORES.PROGRESS, sessionId);
-        if (localSaved && localSaved.countryCode === countryCode && localSaved.knowledgeLevel === knowledgeLevel) {
-          setProgress(localSaved);
+        // Guard on countryCode only — knowledgeLevel mismatch is handled via soft migration
+        if (localSaved && localSaved.countryCode === countryCode) {
+          setProgress(applyRestored(localSaved));
         }
       } catch { /* ignore */ }
 
@@ -73,10 +116,12 @@ export function useProgress(
       try {
         await authReady;
         const saved = await getProgress(sessionId);
-        if (saved && saved.countryCode === countryCode && saved.knowledgeLevel === knowledgeLevel) {
-          // If Firestore is newer or we don't have local, update local
-          setProgress(saved);
-          offlineDB.set(STORES.PROGRESS, sessionId, saved).catch(() => {});
+        // Guard on countryCode only — knowledgeLevel mismatch is handled via soft migration
+        if (saved && saved.countryCode === countryCode) {
+          // Firestore is the source of truth; apply soft migration if needed
+          const migrated = applyRestored(saved);
+          setProgress(migrated);
+          offlineDB.set(STORES.PROGRESS, sessionId, migrated).catch(() => {});
         } else if (!progress) {
           const initial: UserProgress = {
             sessionId, countryCode, completedSteps: [],

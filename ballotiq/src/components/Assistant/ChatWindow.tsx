@@ -14,6 +14,7 @@ import { logAssistantQuestion } from '@/lib/firebase/analytics';
 import { sanitizeUserInput } from '@/lib/security/sanitize';
 import { useSTT } from '@/hooks/useSTT';
 import { getLanguageInfo } from '@/lib/constants/languages';
+import { authReady, getFirebaseAuth } from '@/lib/firebase/client';
 import TranslatedText from '@/components/ui/TranslatedText';
 import AIStatusBadge from '@/components/ui/AIStatusBadge';
 import ChatMessage from './ChatMessage';
@@ -57,6 +58,11 @@ export default function ChatWindow({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<ChatMessageType[]>([]);
   messagesRef.current = messages;
+  // Tracks whether conversation metadata has already been saved for this session.
+  // Using a ref (not state) so the flag is visible synchronously across concurrent
+  // sendMessage calls, preventing duplicate sidebar entries when the user sends
+  // messages rapidly before the first setMessages re-render propagates.
+  const metadataSavedRef = useRef<boolean>(false);
   
   const langInfo = getLanguageInfo(userContext.language);
   const { isListening, error: sttError, startListening, stopListening } = useSTT(
@@ -80,6 +86,8 @@ export default function ChatWindow({
       if (active) {
         setMessages(history);
         setShowSuggestions(history.length === 0);
+        // If the session already has history, metadata was previously saved.
+        if (history.length > 0) metadataSavedRef.current = true;
         setIsHistoryLoading(false);
       }
     }
@@ -109,10 +117,19 @@ export default function ChatWindow({
       await saveChatMessage(userContext.sessionId, userMsg);
       await logAssistantQuestion(userContext.countryCode, userContext.knowledgeLevel);
 
-      // Save conversation metadata if this is the first message in the session
-      if (messages.length === 0) {
+      // Save conversation metadata only once per session (first message).
+      // We use a ref instead of checking messages.length to avoid a stale-closure
+      // race where two rapid sends both read messages.length === 0 before the
+      // first setMessages re-render propagates, which would create duplicate entries.
+      if (!metadataSavedRef.current) {
+        metadataSavedRef.current = true; // set synchronously before any await
         const title = generateTitle(sanitized);
-        const userId = typeof window !== 'undefined' ? localStorage.getItem('ballotiq_session_id') || userContext.sessionId : userContext.sessionId;
+        
+        // Determine userId (prefer Firebase UID)
+        await authReady;
+        const auth = getFirebaseAuth();
+        const userId = auth?.currentUser?.uid || (typeof window !== 'undefined' ? localStorage.getItem('ballotiq_session_id') || userContext.sessionId : userContext.sessionId);
+        
         const metadata = {
           id: userContext.sessionId,
           userId,

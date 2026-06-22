@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+jest-output.json
 
 # next.js
 /.next/
@@ -42,3 +43,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# next-agents-md
+.next-docs/
