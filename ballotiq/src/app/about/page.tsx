@@ -39,7 +39,7 @@ export default function AboutPage() {
         className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12"
       >
         {/* Header */}
-        <div className="text-center space-y-4 mb-12 sm:mb-16">
+        <header className="text-center space-y-4 mb-12 sm:mb-16">
           <div className="flex items-center justify-center gap-3">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-gray-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20">
               <span className="text-2xl" role="img" aria-label="BallotIQ logo">🗳️</span>
@@ -54,7 +54,7 @@ export default function AboutPage() {
           <p className="text-sm sm:text-base md:text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
             <TranslatedText text="An AI-powered, non-partisan platform helping citizens understand elections, their rights, and the voting process." />
           </p>
-        </div>
+        </header>
 
         {/* Non-partisan mission statement */}
         <section className="mb-10 sm:mb-14 p-6 sm:p-8 rounded-3xl bg-white/[0.03] border border-white/10">
