@@ -392,7 +392,7 @@ export default function HomePage() {
               </h4>
               <div className="flex flex-wrap gap-3 lg:gap-4 justify-center">
                 <a
-                  href="#"
+                  href="/about"
                   className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white transition-colors duration-200"
                 >
                   <TranslatedText text="About" />
